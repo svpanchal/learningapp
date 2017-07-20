@@ -88,12 +88,6 @@ goto :EOF
 :Deployment
 echo Handling node.js deployment.
 
-:: 1. KuduSync
-IF /I "%IN_PLACE_DEPLOYMENT%" NEQ "1" (
-  call :ExecuteCmd "%KUDU_SYNC_CMD%" -v 50 -f "%DEPLOYMENT_SOURCE%" -t "%DEPLOYMENT_TARGET%" -n "%NEXT_MANIFEST_PATH%" -p "%PREVIOUS_MANIFEST_PATH%" -i ".git;.hg;.deployment;deploy.cmd"
-  IF !ERRORLEVEL! NEQ 0 goto error
-)
-
 :: 2. Select node version
 call :SelectNodeVersion
 
@@ -103,6 +97,12 @@ IF EXIST "%DEPLOYMENT_SOURCE%\package.json" (
   call :ExecuteCmd !NPM_CMD! install
   IF !ERRORLEVEL! NEQ 0 goto error
   popd
+)
+
+:: 1. KuduSync
+IF /I "%IN_PLACE_DEPLOYMENT%" NEQ "1" (
+  call :ExecuteCmd "%KUDU_SYNC_CMD%" -v 50 -f "%DEPLOYMENT_SOURCE%" -t "%DEPLOYMENT_TARGET%" -n "%NEXT_MANIFEST_PATH%" -p "%PREVIOUS_MANIFEST_PATH%" -i "e2e;node_modules;src;.angular-cli.json;.gitignore;package.json;karma.conf.js;protractor.conf.js;README.md;tsconfig.json;tslint.json;.deployment;deploy.cmd"
+  IF !ERRORLEVEL! NEQ 0 goto error
 )
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
